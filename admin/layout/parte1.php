@@ -109,7 +109,10 @@
 
 						<small><?php 
 						
-						if ($rol_sesion == 'repartidor') {
+						if ($rol_sesion == 'cliente') {
+							# code...
+							echo 'Cliente';
+						}elseif ($rol_sesion == 'repartidor') {
 							# code...
 							echo 'Repartidor';
 						}elseif ($rol_sesion == 'restaurante') {

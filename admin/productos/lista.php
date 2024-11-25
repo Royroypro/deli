@@ -1,5 +1,8 @@
 
 
+
+
+
 <div class="mdl-tabs__panel" id="tabListProducts">
 				<div class="mdl-grid">
 					<div class="mdl-cell mdl-cell--4-col-phone mdl-cell--8-col-tablet mdl-cell--12-col-desktop">
