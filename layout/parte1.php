@@ -31,6 +31,7 @@
             <a class="feed" id="feedback" style="display: none;"></a>
             <a href="./login/cliente.php" >Iniciar sesión</a>
             <a href="./login/index.php" >Trabaja con nosotros</a>
+            <a href="#" class="cart"><img src="<?php echo $URL;?>/img/carrito.png" width="25px" height="25px"><span class="cart-number">0</span></a>
         </nav>
         <div class="icons">
             <i class="fas fa-bars" id="menu-bars"></i>

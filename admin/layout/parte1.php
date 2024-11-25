@@ -112,6 +112,9 @@
 						if ($rol_sesion == 'repartidor') {
 							# code...
 							echo 'Repartidor';
+						}elseif ($rol_sesion == 'restaurante') {
+							# code...
+							echo 'Restaurante';
 						}
 						
 						; ?></small>
@@ -131,39 +134,33 @@
 							</div>
 						</a>
 					</li>
+
+
                     <li class="full-width divider-menu-h"></li>
 					<li class="full-width">
-						<a href="#!" class="full-width btn-subMenu">
+						<a href="<?php echo $URL;?>admin/productos/crear.php" class="full-width">
 							<div class="navLateral-body-cl">
 								<i class="zmdi zmdi-washing-machine"></i>
 							</div>
 							<div class="navLateral-body-cr">
 								PRODUCTOS
 							</div>
-							<span class="zmdi zmdi-chevron-left"></span>
 						</a>
-						<ul class="full-width menu-principal sub-menu-options">
-							<li class="full-width">
-								<a href="<?php echo $URL;?>admin/productos/crear.php" class="full-width">
-									<div class="navLateral-body-cl">
-										<i class="zmdi zmdi-plus"></i>
-									</div>
-									<div class="navLateral-body-cr">
-										A GREGAR
-									</div>
-								</a>
-							</li>
-							<li class="full-width">
-								<a href="<?php echo $URL;?>admin/productos/lista.php" class="full-width">
-									<div class="navLateral-body-cl">
-										<i class="zmdi zmdi-format-list-bulleted"></i>
-									</div>
-									<div class="navLateral-body-cr">
-										LISTA
-									</div>
-								</a>
-							</li>
-						</ul>
+					</li>
+
+
+					<li class="full-width divider-menu-h"></li>
+					<li class="full-width">
+						<a href="<?php echo $URL;?>admin/pedidos/" class="full-width">
+							<div class="navLateral-body-cl">
+								<i class="zmdi zmdi-shopping-cart"></i>
+							</div>
+							<div class="navLateral-body-cr">
+								PEDIDOS
+							</div>
+						</a>
+					</li>
+
 					</li>
 					<li class="full-width divider-menu-h"></li>
 					<li class="full-width">

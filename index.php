@@ -4,7 +4,7 @@
     
 	/* @include 'plant/control/veri.php'; */
 	include "app/config.php";
-    /* include "layout/sesion.php"; */
+    include "layout/sesion.php";
     include "layout/parte1.php";
   
 
@@ -17,25 +17,29 @@
         <h2>Nuestros Especiales</h2>
 </div>
 <div class="table">
+    <?php
+    $sql = "SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.imagen, c.nombre as categoria, r.nombre as restaurante FROM productos p LEFT JOIN productos_categorias pc ON p.id_producto = pc.id_producto LEFT JOIN categorias c ON pc.id_categoria = c.id_categoria LEFT JOIN restaurantes r ON p.id_restaurante = r.id_restaurante";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $productos = $stmt->fetchAll();
+    foreach ($productos as $producto) { ?>
     <div style="display: flex; flex-direction: column; align-items: center;">
-        <a href="./dishes.html"><img src="<?php echo $URL;?>/food/Images/Dishes/Chicken-Biryani.jpg" height="150"><h4>Biryani</h4></a>
+        <a href="./detalle.php?id_producto=<?php echo $producto['id_producto']; ?>"><img src="<?php echo $URL.'/admin/imgs/productos/productos/'.$producto['imagen']; ?>" height="150" width="150" style="object-fit: cover;"><h4><?php echo $producto['nombre']; ?></h4></a>
+        <p><?php echo $producto['descripcion']; ?></p>
+        <p>Precio: <?php echo $producto['precio']; ?></p>
+        <p>Categoría: <?php echo $producto['categoria']; ?></p>
+        <p>Restaurante: <?php echo $producto['restaurante']; ?></p>
         <div class="btns">
-            <button class="btn-info" style="font-size: 12px; padding: 5px 10px;">Ver información</button>
-            <button class="btn-success" style="font-size: 12px; padding: 5px 10px;">Agregar al carrito</button>
+            <button class="btn-info" style="font-size: 12px; padding: 5px 10px;">Mas</button>
+            <button class="btn-success" style="font-size: 12px; padding: 5px 10px;"><i class="fas fa-shopping-cart"></i> carrito</button>
         </div>
-        
     </div>
-
-    <a href="./dishes.html"><img src="<?php echo $URL;?>/food/Images/Dishes/chicken.jpeg" height="150"><h4>Chicken Lolipop</h4></a>
-    <a href="./dishes.html"><img src="<?php echo $URL;?>/food/Images/Dishes/panner tikka.jpg" height="150"><h4>Panner Tikka</h4></a>
-    <a href="./dishes.html"><img src="<?php echo $URL;?>/food/Images/Dishes/garlicprawns.jpg" height="150"><h4>Garlic Prawns</h4></a>
-    <a href="./dishes.html"><img src="<?php echo $URL;?>/food/Images/Dishes/vegpulao.jpg" height="150"><h4>Veg Pulao</h4></a>
-    <a href="./dishes.html"><img src="<?php echo $URL;?>/food/Images/Dishes/apollo fish.jpg" height="150"><h4>Apollo fish</h4></a>
+    <?php } ?>
 </div>
 
 <!--Top Restaurants-->
 <div class="top-re">
-    <h2>Los Mejores Restaurantes</h2>
+    <h2>Productos</h2>
 </div>
 <div class="table1">
     <a href="./Barbeque.html"><img src="<?php echo $URL;?>/food/Images/Restaurants/barbeque.jpg" height="150"><h4>Barbeque</h4><p>tandoori, biryani, Starters</p></a>
