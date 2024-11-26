@@ -154,7 +154,15 @@
 
 					<li class="full-width divider-menu-h"></li>
 					<li class="full-width">
-						<a href="<?php echo $URL;?>admin/pedidos/" class="full-width">
+						<?php if ($rol_sesion == 'repartidor'): ?>
+						<a href="<?php echo $URL;?>/pedidos/repartidor.php" class="full-width">
+						<?php elseif ($rol_sesion == 'cliente'): ?>
+						<a href="<?php echo $URL;?>/app/controllers/pedidos/proceso_compra.php" class="full-width">
+						<?php else: ?>
+						<a href="<?php echo $URL;?>pedidos/restaurante.php" class="full-width">
+						<?php endif; ?>
+
+
 							<div class="navLateral-body-cl">
 								<i class="zmdi zmdi-shopping-cart"></i>
 							</div>

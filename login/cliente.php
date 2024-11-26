@@ -1,9 +1,12 @@
+<?php include '../app/config.php';?>
+
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Login/Register</title>
-        <link rel="stylesheet" href="../food/login.css">
+        <link rel="stylesheet" href="<?php echo $URL;?>food/login.css">
         <link rel="icon" href="../food/Images/Restaurants/download.png" type="image/icon type">
     </head>
 <body>
@@ -43,7 +46,7 @@
             function submitLoginForm() {
                 const form = document.getElementById('loginForm');
                 const formData = new FormData(form);
-                fetch('../app/controllers/login/ingreso.php', {
+                fetch('<?php echo $URL;?>app/controllers/login/ingreso.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -52,7 +55,7 @@
                     const alert = document.getElementById('alert');
                     alert.innerHTML = data.mensaje;
                     if(data.estado === 'success') {
-                        window.location.href = '../admin/index.php';
+                        window.location.href = '<?php echo $URL;?>index.php';
                     }
                 })
                 .catch(error => {

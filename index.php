@@ -4,10 +4,18 @@
     
 	/* @include 'plant/control/veri.php'; */
 	include "app/config.php";
-
-    include "layout/parte1.php";
+    
+    session_start();
+    if (isset($_SESSION['id_usuario'])) {
+        $id_usuario_sesion = $_SESSION['id_usuario'];
+    } else {
+        $id_usuario_sesion = null;
+    }
   
 
+    include "layout/parte1.php";
+   
+    
 	/* include_once "reportes/index.php"; */
     ?>
 
@@ -18,8 +26,6 @@
 </div>
 
 <link rel="stylesheet" href="styles.css">
-
-
 
 
 <div class="table">
@@ -37,23 +43,108 @@
         <p style="font-size: 12px;">Restaurante: <?php echo $producto['restaurante']; ?></p>
         <div class="btns">
             <button class="btn-info" style="font-size: 10px; padding: 10px 10px;">Mas</button>
-            
-    <button class="btn-success" style="font-size: 10px; padding: 10px 10px;"
-            onclick="agregarAlCarrito(
-            '<?php echo $producto['id_producto']; ?>',
-            '<?php echo addslashes($producto['nombre']); ?>',
-            '<?php echo $producto['precio']; ?>',
-            '<?php echo addslashes($producto['restaurante']); ?>')">
+            <button class="btn-success" style="font-size: 10px; padding: 10px 10px;" 
+                <?php if (isset($_SESSION['id_usuario'])) { ?>
+                    onclick="agregarAlCarrito(
+                        '<?php echo $producto['id_producto']; ?>',
+                        '<?php echo addslashes($producto['nombre']); ?>',
+                        '<?php echo $producto['precio']; ?>',
+                        '<?php echo addslashes($producto['restaurante']); ?>')"
+                <?php } else { ?>
+                    onclick="mostrarAlerta()"
+                <?php } ?>>
                 <i class="fas fa-shopping-cart"></i> carrito
-    </button>
-            </div>
-
-       
-    </div>
+            </button>
+        </div>
+    </div>      
     <?php } ?>
 </div>
+<style>
+    .product {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2);
+    }
 
+    .product img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin-bottom: 10px;
+    }
 
+    .product h4 {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .product p {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Definir la función mostrarAlerta
+    const mostrarAlerta = () => {
+        const alerta = document.createElement('div');
+        alerta.style.position = 'fixed';
+        alerta.style.top = '50%';
+        alerta.style.left = '50%';
+        alerta.style.transform = 'translate(-50%, -50%)';
+        alerta.style.padding = '30px';
+        alerta.style.backgroundColor = '#fff5e6';
+        alerta.style.color = '#d35400';
+        alerta.style.border = '2px solid #f39c12';
+        alerta.style.borderRadius = '12px';
+        alerta.style.boxShadow = '0px 8px 12px rgba(0, 0, 0, 0.2)';
+        alerta.style.textAlign = 'center';
+        alerta.style.fontSize = '18px';
+        alerta.style.fontWeight = 'bold';
+        alerta.innerHTML = `
+            <p>Debe <strong>iniciar sesión</strong> para agregar al carrito.</p>
+            <button style="
+                padding: 12px 18px; 
+                background-color: #f39c12; 
+                color: white; 
+                border: none; 
+                border-radius: 6px; 
+                font-size: 16px; 
+                cursor: pointer;" 
+                onclick="window.location.href='<?php echo $URL; ?>/login/cliente.php'">
+                Ir a Iniciar Sesión
+            </button>
+        `;
+        document.body.appendChild(alerta);
+
+        // Quitar la alerta después de 5 segundos
+        setTimeout(() => {
+            alerta.remove();
+        }, 5000);
+    };
+
+    // Verificar si el usuario tiene la sesión iniciada en el frontend
+    const session = <?php echo isset($_SESSION['id_usuario']) ? 'true' : 'false'; ?>;
+
+    // Agregar el evento solo si no hay sesión iniciada
+    if (!session) {
+        const buttons = document.querySelectorAll('.btn-success');
+        buttons.forEach(button => {
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                mostrarAlerta();
+            });
+        });
+    }
+});
+</script>
 
 <style>
 

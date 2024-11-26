@@ -29,7 +29,16 @@
             <a href="#" onclick="openAbout()">acerca de</a>
             <a href="./contact.html" >Contacto</a>
             <a class="feed" id="feedback" style="display: none;"></a>
+
+         
+            <?php if(isset($_SESSION['id_usuario'])): ?>
+            <a href="/layout/index.php" >Mi cuenta</a>
+            <?php else: ?>
             <a href="./login/cliente.php" >Iniciar sesión</a>
+            <?php endif; ?>
+
+          
+            
             <a href="./login/index.php" >Trabaja con nosotros</a>
             <a href="#" class="cart" onclick="abrirModal()">
 
