@@ -36,7 +36,7 @@ if (isset($_GET['token']) && isset($_POST['codigo'])) {
                 $rol = $sentencia_rol->fetch(PDO::FETCH_ASSOC)['rol'];
                 // Redirigir según el rol del usuario
                 if ($rol == 'cliente') {
-                    header('Location: ' . $URL . 'login/cliente');
+                    header('Location: ' . $URL . 'login/cliente.php');
                 } else {
                     header('Location: ' . $URL . 'login');
                 }

@@ -1,7 +1,7 @@
 <?php
  // Ruta al autoload de Composer
 
- 
+ require_once __DIR__ . '/Database.php';
  
  use Ratchet\MessageComponentInterface;
  use Ratchet\ConnectionInterface;

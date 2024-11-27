@@ -32,7 +32,7 @@
 
         <div class="form signinform">
         <form id="loginForm">
-                <h2>Chaski Food</h2>
+                <h2>Chaski.  Cito</h2>
                 <h3>Iniciar sesión</h3>
                 <input type="text" name="nombre_usuario" placeholder="Nombre de usuario">
                 <div id="alert" style="color: red; font-weight: bold;"></div>
