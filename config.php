@@ -1,8 +1,8 @@
 <?php
 return [
-    'db_host' => 'localhost',
-    'db_user' => 'root',
-    'db_password' => '',
+    'db_host' => 'cespedes.ddns.net',
+    'db_user' => 'diker',
+    'db_password' => '*Trabajodecerna2024*',
     'db_name' => 'mensajes',
 ];
 

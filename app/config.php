@@ -1,9 +1,9 @@
 <?php
 //Definir las constantes para la conexion a la base de datos
-define('SERVIDOR','localhost');
+define('SERVIDOR','cespedes.ddns.net');
 define('PUERTO','3306');
-define('USUARIO','root');
-define('PASSWORD','');
+define('USUARIO','diker');
+define('PASSWORD','*Trabajodecerna2024*');
 define('BD','deli');
 
 //Definir la variable $servidor con los datos de la conexion
