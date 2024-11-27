@@ -21,7 +21,7 @@
         <a href="#" class="logo" style="display: flex; align-items: center;">
             <img src="<?php echo $URL;?>/img/logo.png" width="40px" height="40px" style="margin-right: 5px;">
             <i class="fa fa-utensils" style="margin-right: 5px;"></i>
-            Chaskifood
+            Chaski. cito
         </a>
         <nav class="navbar">
             <a class="active" href="./home.html">Inicio</a>
