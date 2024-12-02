@@ -25,13 +25,27 @@ if (isset($_POST['nombre_usuario']) && isset($_POST['contrasena'])) {
                 if ($usuario['esta_cuenta'] === "confirmado") {
                     // Verificar si el usuario es cliente
                     if ($usuario['rol'] === 'cliente') {
-                        // Iniciar sesión
-                        session_start();
-                        $_SESSION['id_usuario'] = $usuario['id_usuario'];
-                        $_SESSION['nombre_usuario'] = $usuario['nombre'];
-                        $_SESSION['rol'] = $usuario['rol'];
-                        $_SESSION['email'] = $usuario['email'];
-                        $respuesta = array('estado'=>'success');
+                        // Verificar si el usuario tiene una cuenta relacionada en la tabla clientes
+                        $sql_cliente = "SELECT COUNT(*) AS existe FROM clientes WHERE id_usuario = :id_usuario";
+                        $query_cliente = $pdo->prepare($sql_cliente);
+                        $query_cliente->execute([':id_usuario' => $usuario['id_usuario']]);
+                        $existe_cliente = $query_cliente->fetch(PDO::FETCH_ASSOC)['existe'] == 1;
+
+                        if ($existe_cliente) {
+                            // Iniciar sesión
+                            session_start();
+                            $_SESSION['id_usuario'] = $usuario['id_usuario'];
+                            $_SESSION['nombre_usuario'] = $usuario['nombre'];
+                            $_SESSION['rol'] = $usuario['rol'];
+                            $_SESSION['email'] = $usuario['email'];
+                            $respuesta = array('estado'=>'success');
+                        } else {
+                            // Redirigir a completar_datos.php
+                            $respuesta = array('estado' => 'completar', 'nombre_usuario' => $nombre_usuario);
+                            header('Content-Type: application/json');
+                            echo json_encode($respuesta);
+                            exit;
+                        }
                     } else {
                         $respuesta = array
                         

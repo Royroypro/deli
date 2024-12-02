@@ -56,6 +56,8 @@
                     alert.innerHTML = data.mensaje;
                     if(data.estado === 'success') {
                         window.location.href = '<?php echo $URL;?>index.php';
+                    } else if (data.estado === 'completar') {
+                        window.location.href = '<?php echo $URL;?>login/completar_datos_cliente.php?nombre_usuario=' + formData.get('nombre_usuario');
                     }
                 })
                 .catch(error => {

@@ -57,8 +57,24 @@
                 .then(data => {
                     const alert = document.getElementById('alert');
                     alert.innerHTML = data.mensaje;
-                    if(data.estado === 'success') {
+                    if (data.estado === 'success') {
                         window.location.href = '../admin/index.php';
+                    } else if (data.estado === 'completar_rep') {
+                        const nombre_usuario = data.nombre_usuario;
+                        window.location.href = `completar_datos_repartidor.php?nombre_usuario=${nombre_usuario}`;
+                    } else if (data.estado === 'completar_res') {
+                        const nombre_usuario = data.nombre_usuario;
+                        window.location.href = `completar_datos_restaurante.php?nombre_usuario=${nombre_usuario}`;
+                    } else {
+                        alert.innerHTML = 'Ocurrió un error inesperado.';
+                    }
+                    // Borrar el caché del navegador
+                    if ('caches' in window) {
+                        caches.keys().then(function(cacheNames) {
+                            cacheNames.forEach(function(cacheName) {
+                                caches.delete(cacheName);
+                            });
+                        });
                     }
                 })
                 .catch(error => {

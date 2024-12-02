@@ -20,21 +20,47 @@ if (isset($_POST['nombre_usuario']) && isset($_POST['contrasena'])) {
         if ($usuario) {
             // Verificar la contraseña
             if (password_verify($contrasena, $usuario['password'])) {
-                
                 // Verificar si la cuenta está confirmada
                 if ($usuario['esta_cuenta'] === "confirmado") {
-                    // Verificar si el usuario es restaurante o repartidor
-                    if ($usuario['rol'] === 'restaurante' || $usuario['rol'] === 'repartidor') {
-                        // Iniciar sesión
+                    if ($usuario['rol'] === 'restaurante') {
+                        // Verificar si el restaurante tiene un id_restaurante asociado
+                        if ($usuario['id_restaurante'] === null) {
+                            $respuesta = array('estado'=>'completar_res', 'nombre_usuario' => $nombre_usuario);
+                        } else {
+                            // Iniciar sesión
+                            session_start();
+                            $_SESSION['id_usuario'] = $usuario['id_usuario'];
+                            $_SESSION['nombre_usuario'] = $usuario['nombre'];
+                            $_SESSION['rol'] = $usuario['rol'];
+                            $_SESSION['email'] = $usuario['email'];
+                            $respuesta = array('estado'=>'success');
+                        }
+                    } elseif ($usuario['rol'] === 'repartidor') {
+                        // Verificar si el repartidor tiene relación con la tabla repartidores
+                        $sql = "SELECT COUNT(*) AS existe FROM repartidores WHERE id_usuario = :id_usuario";
+                        $query = $pdo->prepare($sql);
+                        $query->execute([':id_usuario' => $usuario['id_usuario']]);
+                        $existe_repartidor = $query->fetch(PDO::FETCH_ASSOC)['existe'] == 1;
+
+                        if (!$existe_repartidor) {
+                            $respuesta = array('estado'=>'completar_rep', 'nombre_usuario' => $nombre_usuario);
+                        } else {
+                            // Iniciar sesión
+                            session_start();
+                            $_SESSION['id_usuario'] = $usuario['id_usuario'];
+                            $_SESSION['nombre_usuario'] = $usuario['nombre'];
+                            $_SESSION['rol'] = $usuario['rol'];
+                            $_SESSION['email'] = $usuario['email'];
+                            $respuesta = array('estado'=>'success');
+                        }
+                    } else {
+                        // Iniciar sesión para otros roles
                         session_start();
                         $_SESSION['id_usuario'] = $usuario['id_usuario'];
                         $_SESSION['nombre_usuario'] = $usuario['nombre'];
                         $_SESSION['rol'] = $usuario['rol'];
                         $_SESSION['email'] = $usuario['email'];
-
                         $respuesta = array('estado'=>'success');
-                    } else {
-                        $respuesta = array('estado'=>'error', 'mensaje'=>'Solo los restaurantes y repartidores pueden iniciar sesión aquí para hacer pedidos e iniciar como cliente <a href="' . $URL . 'login/cliente">entra aqui en CLIENTES</a>.');
                     }
                 } else {
                     $respuesta = array('estado'=>'error', 'mensaje'=>'Cuenta no confirmada.');
@@ -52,8 +78,6 @@ if (isset($_POST['nombre_usuario']) && isset($_POST['contrasena'])) {
 } else {
     $respuesta = array('estado'=>'error', 'mensaje'=>'Datos incompletos.');
 }
-
 header('Content-Type: application/json');
 echo json_encode($respuesta);
-
 

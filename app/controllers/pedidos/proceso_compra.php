@@ -228,13 +228,18 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Conexión cerrada con el servidor WebSocket");
     };
 
+    // Recibimos el mensaje con el estado actualizado del pedido
     socket.onmessage = (event) => {
-        const { pedido } = JSON.parse(event.data);
-        if (pedido) {
-            agregarPedidoATabla(pedido);
+        console.log("Mensaje recibido del servidor:", event.data); // Log para verificar
+        const data = JSON.parse(event.data);
+
+        if (data.pedido_id) {
+            // Verifica si el mensaje contiene información del pedido
+            actualizarEstadoPedido(data);
         }
     };
 
+    // Enviar pedido al restaurante
     document.querySelectorAll('.enviarPedidoRestaurante').forEach(button => {
         button.addEventListener('click', () => {
             const restaurante = button.getAttribute('data-restaurante');
@@ -256,7 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 productos: productos,
                 total: total,
                 metodo_pago: metodoPago,
-                detalles: detalles
+                detalles: detalles,
+                estado: "Pendiente" // El estado inicial del pedido es "Pendiente"
             };
 
             if (socket.readyState === WebSocket.OPEN) {
@@ -273,6 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const agregarPedidoATabla = (pedido) => {
         const tbody = document.getElementById('pedidosTable').querySelector('tbody');
         const row = document.createElement('tr');
+        row.id = `pedido-${pedido.id_pedido}`; // Aseguramos que la fila tenga el id correcto
         row.innerHTML = `
             <td>${pedido.id_pedido}</td>
             <td>${pedido.cliente}</td>
@@ -282,35 +289,43 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>S/ ${pedido.total.toFixed(2)}</td>
             <td>${pedido.metodo_pago}</td>
             <td>${pedido.detalles}</td>
-            <td>
-                <div class="dropdown" style="display: inline-block; position: relative;">
-                    <button class="dropbtn" style="background-color: #4CAF50; color: white;">Acciones</button>
-                    <div class="dropdown-content" style="left: 0; top: 100%; position: absolute; width: 100%;">
-                        <button data-id-pedido="${pedido.id_pedido}" class="cancelarPedido" style="background-color: #ff9800; color: white; width: 100%;">Cancelar</button>
-                        <button data-id-pedido="${pedido.id_pedido}" class="hablarRepartidor" style="background-color: #2196F3; color: white; width: 100%;">Hablar con el repartidor</button>
-                    </div>
-                </div>
-            </td>
+            <td id="estado-${pedido.id_pedido}">${pedido.estado}</td>
         `;
         tbody.appendChild(row);
+    };
 
-        const cancelarPedido = row.querySelector('.cancelarPedido');
-        cancelarPedido.addEventListener('click', () => {
-            const id_pedido = cancelarPedido.getAttribute('data-id-pedido');
-            socket.send(JSON.stringify({ cancelar_pedido: id_pedido }));
-            console.log("Pedido cancelado:", id_pedido);
-            row.remove();
-        });
+    const actualizarEstadoPedido = (data) => {
+        const pedidoId = data.pedido_id;
+        const estado = data.estado;
+        const mensaje = data.mensaje;
 
-        const hablarRepartidor = row.querySelector('.hablarRepartidor');
-        hablarRepartidor.addEventListener('click', () => {
-            const id_pedido = hablarRepartidor.getAttribute('data-id-pedido');
-            window.location.href = `./chat.php?id_pedido=${id_pedido}`;
-        });
+        // Busca el pedido en la tabla usando el ID
+        const filaPedido = document.querySelector(`#pedido-${pedidoId}`);
+        if (filaPedido) {
+            const estadoCell = filaPedido.querySelector(`#estado-${pedidoId}`); // Celda que contiene el estado
+
+            // Actualiza el estado en la interfaz
+            estadoCell.textContent = estado === 'aceptar' ? 'Aceptado' : 'Rechazado';
+
+            // Mostrar notificación
+            mostrarNotificacion(mensaje);
+        }
+    };
+
+    // Función para mostrar notificación
+    const mostrarNotificacion = (mensaje) => {
+        if (Notification.permission === "granted") {
+            const notification = new Notification('Actualización de Pedido', {
+                body: mensaje,
+                icon: 'path/to/icon.png' // Icono opcional
+            });
+        } else {
+            console.log("Permiso para notificaciones no concedido.");
+        }
     };
 });
+</script>
 
-    </script>
 </body>
 </html>
 
