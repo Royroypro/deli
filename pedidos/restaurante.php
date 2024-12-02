@@ -58,6 +58,7 @@ $nombre_restaurante_sesion = $resultado['nombre'] ?? null;
                 <th>Restaurante</th>
                 <th>Cliente</th>
                 <th>Productos</th>
+                <th>Detalles</th>
                 <th>Total</th>
                 <th>Mt Pago</th>
                 <th>Acción</th> <!-- Nueva columna para las acciones -->
@@ -89,8 +90,11 @@ $nombre_restaurante_sesion = $resultado['nombre'] ?? null;
                 <td>${pedido.restaurante}</td>
                 <td>${pedido.cliente}</td>
                 <td>${pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}</td>
+                <td>${pedido.detalles}</td>
                 <td>S/ ${pedido.total.toFixed(2)}</td>
                 <td>${pedido.metodo_pago}</td>
+                
+                
                 <td>
                     <button onclick="aceptarPedido(${pedido.id_pedido})">Aceptar</button>
                     <button onclick="rechazarPedido(${pedido.id_pedido})">Rechazar</button>

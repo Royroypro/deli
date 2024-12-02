@@ -1,4 +1,5 @@
 <?php
+
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/ChatServer.php';
 require __DIR__ . '/src/Notifications.php';
@@ -15,5 +16,3 @@ $app = new App('localhost', 8080, '0.0.0.0');
 $app->route('/deli', new ChatServer($config), ['*']);
 $app->run();
 ?>
-
-

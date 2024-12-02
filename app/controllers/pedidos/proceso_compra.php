@@ -184,7 +184,7 @@ if ($resultado) {
             display: block;
         }
     </style>
-    <table id="pedidosTable">
+<table id="pedidosTable">
         <thead>
             <tr>
                 <th>ID Pedido</th>
@@ -238,43 +238,76 @@ document.addEventListener('DOMContentLoaded', () => {
             actualizarEstadoPedido(data);
         }
     };
+// Enviar pedido al restaurante
+document.querySelectorAll('.enviarPedidoRestaurante').forEach(button => {
+    button.addEventListener('click', () => {
+        const restaurante = button.getAttribute('data-restaurante');
+        const productos = carrito.productos.filter(producto => producto.restaurante === restaurante);
+        if (productos.length === 0) {
+            alert(`No hay productos en el carrito para ${restaurante}.`);
+            return;
+        }
 
-    // Enviar pedido al restaurante
-    document.querySelectorAll('.enviarPedidoRestaurante').forEach(button => {
-        button.addEventListener('click', () => {
-            const restaurante = button.getAttribute('data-restaurante');
-            const productos = carrito.productos.filter(producto => producto.restaurante === restaurante);
-            if (productos.length === 0) {
-                alert(`No hay productos en el carrito para ${restaurante}.`);
-                return;
-            }
+        const metodoPago = document.getElementById(`metodoPago_${restaurante}`).value;
+        const detalles = document.getElementById(`detalles_${restaurante}`).value;
+        const total = productos.reduce((total, producto) => total + producto.cantidad * producto.precio, 0);
 
-            const metodoPago = document.getElementById(`metodoPago_${restaurante}`).value;
-            const detalles = document.getElementById(`detalles_${restaurante}`).value;
-            const total = productos.reduce((total, producto) => total + producto.cantidad * producto.precio, 0);
+        const pedido = {
+            id_pedido: Math.floor(10000 + Math.random() * 90000),
+            cliente: carrito.nombre_cliente,
+            restaurante: restaurante,
+            repartidor: carrito.repartidor,
+            productos: productos,
+            total: total,
+            metodo_pago: metodoPago,
+            detalles: detalles,
+            estado: "Pendiente" // El estado inicial del pedido es "Pendiente"
+        };
 
-            const pedido = {
-                id_pedido: Math.floor(10000 + Math.random() * 90000),
-                cliente: carrito.nombre_cliente,
-                restaurante: restaurante,
-                repartidor: carrito.repartidor,
-                productos: productos,
-                total: total,
-                metodo_pago: metodoPago,
-                detalles: detalles,
-                estado: "Pendiente" // El estado inicial del pedido es "Pendiente"
-            };
+        // Verificar si el pedido ya existe en la tabla
+        const filas = document.querySelectorAll('#pedidosTable tbody tr');
+        let pedidoDuplicado = false;
 
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ pedido }));
-                console.log("Pedido enviado:", pedido);
-                alert(`Pedido enviado a ${restaurante}`);
-                agregarPedidoATabla(pedido);
-            } else {
-                alert("Error: No se pudo conectar al servidor.");
+        filas.forEach(fila => {
+            const celdas = fila.children;
+            const clienteTabla = celdas[1].textContent;
+            const restauranteTabla = celdas[2].textContent;
+            const repartidorTabla = celdas[3].textContent;
+            const productosTabla = celdas[4].textContent;
+            const totalTabla = parseFloat(celdas[5].textContent.replace('S/ ', ''));
+            const metodoPagoTabla = celdas[6].textContent;
+            const detallesTabla = celdas[7].textContent;
+
+            if (
+                clienteTabla === pedido.cliente &&
+                restauranteTabla === pedido.restaurante &&
+                repartidorTabla === pedido.repartidor &&
+                productosTabla === pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ') &&
+                totalTabla === pedido.total &&
+                metodoPagoTabla === pedido.metodo_pago &&
+                detallesTabla === pedido.detalles
+            ) {
+                pedidoDuplicado = true;
             }
         });
+
+        if (pedidoDuplicado) {
+            alert(`El pedido para ${restaurante} ya ha sido enviado anteriormente.`);
+            return;
+        }
+
+        // Enviar pedido si no es duplicado
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ pedido }));
+            console.log("Pedido enviado:", pedido);
+            alert(`Pedido enviado a ${restaurante}`);
+            agregarPedidoATabla(pedido);
+        } else {
+            alert("Error: No se pudo conectar al servidor.");
+        }
     });
+});
+
 
     const agregarPedidoATabla = (pedido) => {
         const tbody = document.getElementById('pedidosTable').querySelector('tbody');
@@ -325,7 +358,4 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 });
 </script>
-
-</body>
-</html>
 
