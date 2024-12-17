@@ -56,306 +56,240 @@ if ($resultado) {
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cliente</title>
-    <style>
-        #carrito {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #carrito > li {
-            margin-bottom: 1em;
-        }
-
-        #carrito > li > strong {
-            font-weight: bold;
-        }
-
-        #carrito > li > ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #carrito > li > ul > li {
-            padding: 0.5em;
-        }
-
-        #carrito > li > label {
-            display: block;
-            margin-bottom: 0.5em;
-        }
-
-        #carrito > li > select {
-            width: 100%;
-            padding: 0.5em;
-            margin-bottom: 1em;
-        }
-
-        #carrito > li > textarea {
-            width: 100%;
-            height: 100px;
-            padding: 0.5em;
-            margin-bottom: 1em;
-        }
-
-        #carrito > li > button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 0.5em 1em;
-            border: none;
-            cursor: pointer;
-            margin-top: 1em;
-        }
-
-        #carrito > li > button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
     
-    <h2>Carrito de Compras</h2>
-    <ul id="carrito">
-        <?php foreach ($productosPorRestaurante as $restaurante => $productos): ?>
-            <li>
-                <strong><?php echo htmlspecialchars($restaurante); ?></strong>
-                <ul>
-                    <?php foreach ($productos as $producto): ?>
-                        <li>
-                            <?php echo htmlspecialchars($producto['nombre']); ?> x <?php echo htmlspecialchars($producto['cantidad']); ?> - S/ <?php echo number_format($producto['precio'], 2); ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-                <label for="metodoPago_<?php echo htmlspecialchars($restaurante); ?>">Método de Pago:</label>
-                <select id="metodoPago_<?php echo htmlspecialchars($restaurante); ?>" class="metodoPago">
-                    <option value="efectivo">Efectivo</option>
-                    <option value="yape">Yape</option>
-                    <option value="transferencia">Transferencia</option>
-                </select>
-                <label for="detalles_<?php echo htmlspecialchars($restaurante); ?>">Detalles:</label>
-                <textarea id="detalles_<?php echo htmlspecialchars($restaurante); ?>" cols="20" rows="1" style="height: 30px;" class="detalles"></textarea>
-                <button data-restaurante="<?php echo htmlspecialchars($restaurante); ?>" class="enviarPedidoRestaurante">Enviar Pedido a <?php echo htmlspecialchars($restaurante); ?></button>
-            </li>
-        <?php endforeach; ?>
-    </ul>
+</head>
 
-    <h3>Pedidos</h3>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-            font-family: 'Arial', sans-serif;
-            font-size: 14px;
-        }
-        th {
-            background-color: #FFCC00;
-            color: #333;
-        }
-        .dropbtn {
-            background-color: #FF6600;
-            color: white;
-            padding: 8px 12px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #fff;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-            z-index: 1;
-            border-radius: 4px;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-    </style>
-<table id="pedidosTable">
-        <thead>
-            <tr>
-                <th>ID Pedido</th>
-                <th>Cliente</th>
-                <th>Restaurante</th>
-                <th>Repartidor</th>
-                <th>Productos</th>
-                <th>Total</th>
-                <th>Mt Pago</th>
-                <th>Detalles</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Los pedidos se agregarán aquí -->
-        </tbody>
-    </table>
+<body>
 
-    <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const carrito = {
-        total: <?php echo json_encode($carrito['total']); ?>,
-        productos: <?php echo json_encode($carrito['productos']); ?>,
-        repartidor: "<?php echo $repartidor; ?>",
-        nombre_cliente: "<?php echo htmlspecialchars($nombre_cliente_sesion); ?>",
-    };
 
-    const socket = new WebSocket('ws://localhost:8080/deli');
+<style>
+    /* Contenedor principal del carrito */
+    .carrito-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 400px; /* Un poco más grande para mayor espacio */
+        margin: 20px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        font-family: 'Arial', sans-serif;
+    }
 
-    socket.onopen = () => {
-        console.log("Conectado al servidor WebSocket");
-        socket.send(JSON.stringify({ role: "cliente" }));
-    };
+    /* Título del carrito */
+    .titulo-carrito {
+        font-size: 28px; /* Más grande para destacar */
+        font-weight: 700; /* Negrita para más énfasis */
+        color: #FF6347; /* Rojo tomate, relacionado con la comida rápida */
+        margin-bottom: 15px;
+        text-align: center;
+    }
 
-    socket.onerror = (error) => {
-        console.error("Error en WebSocket:", error);
-        alert("No se pudo conectar al servidor.");
-    };
+    /* Lista de carrito sin puntos */
+    .lista-carrito {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
 
-    socket.onclose = () => {
-        console.log("Conexión cerrada con el servidor WebSocket");
-    };
+    /* Estilo para cada item de restaurante */
+    .restaurante-item {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f2f2f2; /* Línea divisoria suave */
+    }
 
-    // Recibimos el mensaje con el estado actualizado del pedido
-    socket.onmessage = (event) => {
-        console.log("Mensaje recibido del servidor:", event.data); // Log para verificar
-        const data = JSON.parse(event.data);
+    /* Nombre del restaurante */
+    .restaurante-nombre {
+        font-size: 22px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
 
-        if (data.pedido_id) {
-            // Verifica si el mensaje contiene información del pedido
-            actualizarEstadoPedido(data);
-        }
-    };
-// Enviar pedido al restaurante
-document.querySelectorAll('.enviarPedidoRestaurante').forEach(button => {
-    button.addEventListener('click', () => {
-        const restaurante = button.getAttribute('data-restaurante');
-        const productos = carrito.productos.filter(producto => producto.restaurante === restaurante);
-        if (productos.length === 0) {
-            alert(`No hay productos en el carrito para ${restaurante}.`);
-            return;
-        }
+    /* Lista de productos */
+    .productos-lista {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-        const metodoPago = document.getElementById(`metodoPago_${restaurante}`).value;
-        const detalles = document.getElementById(`detalles_${restaurante}`).value;
-        const total = productos.reduce((total, producto) => total + producto.cantidad * producto.precio, 0);
+    /* Estilo para cada producto */
+    .producto-item {
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: #FFFAF0; /* Fondo suave beige */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
 
-        const pedido = {
-            id_pedido: Math.floor(10000 + Math.random() * 90000),
-            cliente: carrito.nombre_cliente,
-            restaurante: restaurante,
-            repartidor: carrito.repartidor,
-            productos: productos,
-            total: total,
-            metodo_pago: metodoPago,
-            detalles: detalles,
-            estado: "Pendiente" // El estado inicial del pedido es "Pendiente"
-        };
+    /* Detalles del restaurante */
+    .detalle-restaurante {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        justify-content: space-between;
+    }
 
-        // Verificar si el pedido ya existe en la tabla
-        const filas = document.querySelectorAll('#pedidosTable tbody tr');
-        let pedidoDuplicado = false;
+    /* Etiquetas dentro de los detalles */
+    .label {
+        font-weight: 600;
+        color: #FF6347; /* Color acorde al tema */
+        margin-right: 8px;
+    }
 
-        filas.forEach(fila => {
-            const celdas = fila.children;
-            const clienteTabla = celdas[1].textContent;
-            const restauranteTabla = celdas[2].textContent;
-            const repartidorTabla = celdas[3].textContent;
-            const productosTabla = celdas[4].textContent;
-            const totalTabla = parseFloat(celdas[5].textContent.replace('S/ ', ''));
-            const metodoPagoTabla = celdas[6].textContent;
-            const detallesTabla = celdas[7].textContent;
+    /* Campos de prioridad y método de pago */
+    .prioridad, .metodoPago {
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #FF6347; /* Rojo para resaltar */
+        width: 170px;
+        background-color: #FFF3E0; /* Fondo suave */
+        font-size: 14px;
+        color: #333;
+    }
 
-            if (
-                clienteTabla === pedido.cliente &&
-                restauranteTabla === pedido.restaurante &&
-                repartidorTabla === pedido.repartidor &&
-                productosTabla === pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ') &&
-                totalTabla === pedido.total &&
-                metodoPagoTabla === pedido.metodo_pago &&
-                detallesTabla === pedido.detalles
-            ) {
-                pedidoDuplicado = true;
-            }
-        });
+    /* Detalles del pedido */
+    .detalles {
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #FF6347;
+        width: 170px;
+        height: 50px;
+        background-color: #FFF3E0;
+    }
 
-        if (pedidoDuplicado) {
-            alert(`El pedido para ${restaurante} ya ha sido enviado anteriormente.`);
-            return;
+    /* Botón para enviar el pedido */
+    .enviarPedidoRestaurante {
+        background-color: #FF6347; /* Rojo vibrante */
+        color: white;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    /* Efecto hover sobre el botón */
+    .enviarPedidoRestaurante:hover {
+        background-color: #FF4500; /* Rojo más fuerte en hover */
+        transform: scale(1.05); /* Agranda ligeramente el botón al pasar el mouse */
+    }
+
+    /* Agregar una animación sutil al cargar el carrito */
+    .carrito-container {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Estilos para pantallas pequeñas */
+    @media (max-width: 768px) {
+        .carrito-container {
+            padding: 20px;
         }
 
-        // Enviar pedido si no es duplicado
-        if (socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ pedido }));
-            console.log("Pedido enviado:", pedido);
-            alert(`Pedido enviado a ${restaurante}`);
-            agregarPedidoATabla(pedido);
-        } else {
-            alert("Error: No se pudo conectar al servidor.");
+        .titulo-carrito {
+            font-size: 20px;
         }
-    });
-});
 
-
-    const agregarPedidoATabla = (pedido) => {
-        const tbody = document.getElementById('pedidosTable').querySelector('tbody');
-        const row = document.createElement('tr');
-        row.id = `pedido-${pedido.id_pedido}`; // Aseguramos que la fila tenga el id correcto
-        row.innerHTML = `
-            <td>${pedido.id_pedido}</td>
-            <td>${pedido.cliente}</td>
-            <td>${pedido.restaurante}</td>
-            <td>${pedido.repartidor}</td>
-            <td>${pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}</td>
-            <td>S/ ${pedido.total.toFixed(2)}</td>
-            <td>${pedido.metodo_pago}</td>
-            <td>${pedido.detalles}</td>
-            <td id="estado-${pedido.id_pedido}">${pedido.estado}</td>
-        `;
-        tbody.appendChild(row);
-    };
-
-    const actualizarEstadoPedido = (data) => {
-        const pedidoId = data.pedido_id;
-        const estado = data.estado;
-        const mensaje = data.mensaje;
-
-        // Busca el pedido en la tabla usando el ID
-        const filaPedido = document.querySelector(`#pedido-${pedidoId}`);
-        if (filaPedido) {
-            const estadoCell = filaPedido.querySelector(`#estado-${pedidoId}`); // Celda que contiene el estado
-
-            // Actualiza el estado en la interfaz
-            estadoCell.textContent = estado === 'aceptar' ? 'Aceptado' : 'Rechazado';
-
-            // Mostrar notificación
-            mostrarNotificacion(mensaje);
+        .restaurante-item {
+            margin-bottom: 20px;
         }
-    };
 
-    // Función para mostrar notificación
-    const mostrarNotificacion = (mensaje) => {
-        if (Notification.permission === "granted") {
-            const notification = new Notification('Actualización de Pedido', {
-                body: mensaje,
-                icon: 'path/to/icon.png' // Icono opcional
-            });
-        } else {
-            console.log("Permiso para notificaciones no concedido.");
+        .producto-item {
+            flex-direction: column;
+            align-items: flex-start;
         }
-    };
-});
-</script>
 
+        .detalle-restaurante {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .enviarPedidoRestaurante {
+            padding: 10px 20px;
+        }
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+</style>
+
+
+
+<form id="form-carrito" action="enviar_pedido.php" method="POST">
+    <div class="carrito-container">
+        <h2 class="titulo-carrito">Carrito de Compras</h2>
+        <ul id="carrito" class="lista-carrito">
+            <?php foreach ($productosPorRestaurante as $restaurante => $productos): ?>
+                <li class="restaurante-item">
+                    <strong class="restaurante-nombre"><?php echo htmlspecialchars($restaurante); ?></strong>
+                    <ul class="productos-lista">
+                        <?php foreach ($productos as $index => $producto): ?>
+                            <li class="producto-item">
+                                <?php
+                                $consulta = $pdo->prepare("SELECT imagen FROM productos WHERE nombre = :nombre");
+                                $consulta->execute(['nombre' => $producto['nombre']]);
+                                $resultado = $consulta->fetch();
+                                ?>
+                                <img src="../../../admin/imgs/productos/productos/<?php echo htmlspecialchars($resultado['imagen']); ?>" width="50" height="50" alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
+                                <input type="hidden" name="productos[<?php echo htmlspecialchars($restaurante); ?>][<?php echo $index; ?>][nombre]" value="<?php echo htmlspecialchars($producto['nombre']); ?>" />
+                                <input type="hidden" name="productos[<?php echo htmlspecialchars($restaurante); ?>][<?php echo $index; ?>][cantidad]" value="<?php echo $producto['cantidad']; ?>" />
+                                <input type="hidden" name="productos[<?php echo htmlspecialchars($restaurante); ?>][<?php echo $index; ?>][precio]" value="<?php echo $producto['precio']; ?>" />
+                                <?php echo htmlspecialchars($producto['nombre']); ?> x <?php echo htmlspecialchars($producto['cantidad']); ?> - S/ <?php echo number_format($producto['precio'], 2); ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <div class="detalle-restaurante">
+                        <label for=""> Precio de Delivery</label>
+                        <label for="prioridad_<?php echo htmlspecialchars($restaurante); ?>" class="label">Prioridad:</label>
+                        <select id="prioridad_<?php echo htmlspecialchars($restaurante); ?>" name="prioridad_<?php echo htmlspecialchars($restaurante); ?>" class="prioridad">
+                            <option value="baja">Rapido(tengo hambre S/. 7) </option>
+                            <option value="media">Media(puedo esperar un poquito S/. 5)</option>
+                            <option value="alta">Normal(toma tu tiempo S/. 4)</option>
+                        </select>
+                    </div>
+                    <div class="detalle-restaurante">
+                        <label for="metodoPago_<?php echo htmlspecialchars($restaurante); ?>" class="label">Método de Pago:</label>
+                        <select id="metodoPago_<?php echo htmlspecialchars($restaurante); ?>" name="metodoPago_<?php echo htmlspecialchars($restaurante); ?>" class="metodoPago">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="yape">Yape</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    
+                    <div class="detalle-restaurante">
+                        <label for="detalles_<?php echo htmlspecialchars($restaurante); ?>" class="label">Detalles:</label>
+                        <textarea id="detalles_<?php echo htmlspecialchars($restaurante); ?>" name="detalles_<?php echo htmlspecialchars($restaurante); ?>" cols="20" rows="1" class="detalles"></textarea>
+                    </div>
+                    <button type="submit" data-restaurante="<?php echo htmlspecialchars($restaurante); ?>" class="enviarPedidoRestaurante">Enviar Pedido a <?php echo htmlspecialchars($restaurante); ?></button>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+</form>
+
+
+   
+</body>

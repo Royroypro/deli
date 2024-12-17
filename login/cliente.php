@@ -1,12 +1,15 @@
-<?php include '../app/config.php';?>
+<?php 
 
+include '../app/config.php';
+
+?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Login/Register</title>
-        <link rel="stylesheet" href="<?php echo $URL;?>food/login.css">
+        <link rel="stylesheet" href="../food/login.css">
         <link rel="icon" href="../food/Images/Restaurants/download.png" type="image/icon type">
     </head>
 <body>

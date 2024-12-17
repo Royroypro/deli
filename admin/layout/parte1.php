@@ -138,6 +138,7 @@
 						</a>
 					</li>
 
+	<?php if ($rol_sesion == 'restaurante'): ?>
 
                     <li class="full-width divider-menu-h"></li>
 					<li class="full-width">
@@ -151,15 +152,18 @@
 						</a>
 					</li>
 
+	<?php endif;?>
+
+
 
 					<li class="full-width divider-menu-h"></li>
 					<li class="full-width">
 						<?php if ($rol_sesion == 'repartidor'): ?>
-						<a href="<?php echo $URL;?>/pedidos/repartidor.php" class="full-width">
+						<a href="<?php echo $URL;?>/pedidos/lista_pedido_repartidor.php" class="full-width">
 						<?php elseif ($rol_sesion == 'cliente'): ?>
-						<a href="<?php echo $URL;?>/app/controllers/pedidos/proceso_compra.php" class="full-width">
+						<a href="<?php echo $URL;?>pedidos/lista_pedidos_cliente.php" class="full-width">
 						<?php else: ?>
-						<a href="<?php echo $URL;?>pedidos/restaurante.php" class="full-width">
+						<a href="<?php echo $URL;?>pedidos/lista_pedido_restaurante.php" class="full-width">
 						<?php endif; ?>
 
 

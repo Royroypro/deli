@@ -24,7 +24,7 @@
             Chaski. cito
         </a>
         <nav class="navbar">
-            <a class="active" href="./home.html">Inicio</a>
+            <a class="active" href="<?php echo $URL;?>/index.php">Inicio</a>
             <a href="./dishes.html">platillos</a>
             <a href="#" onclick="openAbout()">acerca de</a>
             <a href="./contact.html" >Contacto</a>
@@ -32,7 +32,7 @@
 
          
             <?php if(isset($_SESSION['id_usuario'])): ?>
-            <a href="/layout/index.php" >Mi cuenta</a>
+            <a href="<?php echo $URL; ?>/my_account/index.php" >Mi cuenta</a>
             <?php else: ?>
             <a href="./login/cliente.php" >Iniciar sesión</a>
             <?php endif; ?>
@@ -110,15 +110,7 @@
 
     <!--Home section start-->
     <section class="home" id="home-section">
-<!--Oferta especial-->
-<div class="add">
- <div class="add-container">
- <img src="<?php echo $URL;?>/food/Images/banner/burger banner.jpg">
- <div class="textimg"><h2>30% de descuento en tu<br> primer pedido</h2>
- <a href="./ksbakers.html"><button class="ordr">Pedir ahora</button></a></div>
- 
- </div>
-</div>
+
 
 
 
