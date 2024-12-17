@@ -420,6 +420,34 @@ function modificarCantidad(idDetalle, cambio) {
 }
 
 </script>
+
+<script>
+// Emitir evento para el nuevo total
+function emitirTotalActualizado(idPedido) {
+    socket.emit('totalActualizado', { id_pedido: idPedido });
+}
+
+// Escuchar evento de total actualizado
+socket.on('totalActualizado', (data) => {
+    const totalContent = document.getElementById('total-actualizado-contenido');
+    if (totalContent) {
+        totalContent.textContent = `Total actualizado para el pedido ID: ${data.id_pedido}`;
+    }
+});
+</script>
+
+<div id="modal-total-actualizado" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+    <div style="background: white; padding: 20px; border-radius: 5px; text-align: center;">
+        <h2>Total Actualizado</h2>
+        <p id="modal-total-contenido"></p>
+        <button onclick="cerrarModalTotalActualizado()" class="mdl-button mdl-js-button mdl-button--raised">
+            Cerrar
+        </button>
+    </div>
+</div>
+
+
+
 <div id="notification-container" style="position: fixed; top: 10px; right: 10px; z-index: 9999;"></div>
 
                         <!-- Lista de productos -->
@@ -475,5 +503,7 @@ function modificarCantidad(idDetalle, cambio) {
 }
 
 </style>
+
+
 
 <?php include "../layout/parte2.php"; ?>

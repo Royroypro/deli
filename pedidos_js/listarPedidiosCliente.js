@@ -61,7 +61,7 @@ function obtenerPedidos(socket, connection, idCliente, io) {
     console.log(`[${currentTime}] Consultando pedidos para el cliente ID ${idCliente}`);
 
     const sql = `
-        SELECT p.id_pedido, r.nombre as restaurante, c.nombre_cliente as cliente, 
+        SELECT p.id_pedido, r.nombre as restaurante, c.nombre_cliente as cliente, c.telefono as telefono_cliente,
                p.estado, p.total, p.fecha, re.nombre as repartidor, re.telefono as telefono_repartidor
         FROM pedidos p
         LEFT JOIN restaurantes r ON p.id_restaurante = r.id_restaurante
@@ -91,7 +91,7 @@ function obtenerPedidosRestaurante(socket, connection, idRestaurante, io) {
     console.log(`[${currentTime}] Consultando pedidos para el restaurante ID ${idRestaurante}`);
 
     const sql = `
-        SELECT p.id_pedido, r.nombre as restaurante, c.nombre_cliente as cliente, 
+        SELECT p.id_pedido, r.nombre as restaurante, c.nombre_cliente as cliente, c.telefono as telefono_cliente, 
                p.estado, p.total, p.fecha, re.nombre as repartidor, re.telefono as telefono_repartidor
         FROM pedidos p
         LEFT JOIN restaurantes r ON p.id_restaurante = r.id_restaurante
@@ -114,6 +114,7 @@ function obtenerPedidosRestaurante(socket, connection, idRestaurante, io) {
         });
     });
 }
+
 
 // Función para obtener los productos asociados a los pedidos
 function obtenerProductosPedidos(pedidos, connection, callback) {

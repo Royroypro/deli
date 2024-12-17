@@ -2,9 +2,8 @@
 include "../app/config.php";
 header('Content-Type: application/json');
 
-if (isset($_GET['id'])) {
-    $nombreRestaurante = urldecode($_GET['id']);
-
+if (isset($_GET['nombre'])) {
+    $nombreRestaurante = urldecode($_GET['nombre']);
     $consulta = $pdo->prepare("SELECT nombre, direccion, horario, contacto, imagen_logo, horarios_flexibles_restaurantes FROM restaurantes WHERE nombre = :nombre AND Estado = 1");
     $consulta->execute(['nombre' => $nombreRestaurante]);
     $detalles = $consulta->fetch();

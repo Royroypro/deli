@@ -44,7 +44,7 @@ include "../admin/layout/parte1.php";
                 <th>N° Pedido</th>
                 <th>Fecha</th>
                 <th>Cliente</th>
-                <th>Repartidor</th>
+                
                 <th>Productos</th>
                 <th>Estado</th>
                 <th>Total</th>
@@ -120,93 +120,118 @@ include "../admin/layout/parte1.php";
 
                 <script src="http://cespedes.ddns.net:8080/socket.io/socket.io.js"></script>
                 <script>
-                    // Conexión al servidor WebSocket
-                    const socket = io.connect('http://cespedes.ddns.net:8080');
+    // Conexión al servidor WebSocket
+    const socket = io.connect('http://cespedes.ddns.net:8080');
 
-                    // Variables para almacenar estados
-                    let lastPedidosState = JSON.parse(localStorage.getItem('lastPedidosState')) || {}; // Estado previo de pedidos
-                    let isSoundEnabled = localStorage.getItem('isSoundEnabled') === 'true'; // Estado del sonido
+    // Variables para almacenar estados
+    let lastPedidosState = JSON.parse(localStorage.getItem('lastPedidosState')) || {}; // Estado previo de pedidos
+    let isSoundEnabled = localStorage.getItem('isSoundEnabled') === 'true'; // Estado del sonido
 
-                    // Botón para habilitar sonido
-                    const enableSoundButton = document.getElementById('enableSoundButton');
-                    if (isSoundEnabled) enableSoundButton.style.display = 'none'; // Ocultar si ya está habilitado
+    // Botón para habilitar sonido
+    const enableSoundButton = document.getElementById('enableSoundButton');
+    if (isSoundEnabled) enableSoundButton.style.display = 'none'; // Ocultar si ya está habilitado
 
-                    enableSoundButton.addEventListener('click', () => {
-                        isSoundEnabled = true;
-                        localStorage.setItem('isSoundEnabled', 'true');
-                        enableSoundButton.style.display = 'none';
-                        alert('Sonido habilitado');
-                    });
+    enableSoundButton.addEventListener('click', () => {
+        isSoundEnabled = true;
+        localStorage.setItem('isSoundEnabled', 'true');
+        enableSoundButton.style.display = 'none';
+        alert('Sonido habilitado');
+    });
 
-                    // Función principal para obtener los pedidos
-                    function obtenerPedidosRepartidor() {
-                        socket.emit('setRepartidorId', <?php echo $id_repartidor_sesion; ?>);
-                    }
+    // Función principal para obtener los pedidos relacionados con el repartidor
+    function obtenerPedidosRepartidor() {
+        const repartidorId = <?php echo $id_repartidor_sesion; ?>;
+        socket.emit('setRepartidorId', repartidorId); // Emite el ID del repartidor al servidor
+    }
 
-                    // Evento al recibir pedidos del servidor
-                    socket.on('pedidosRepartidor', (pedidos) => {
-                        const pedidosTableBody = document.getElementById('pedidosTableBody');
-                        pedidosTableBody.innerHTML = ''; // Limpiar la tabla
+    // Evento al recibir pedidos del servidor
+    socket.on('pedidosRepartidor', (pedidos) => {
+        const pedidosTableBody = document.getElementById('pedidosTableBody');
+        pedidosTableBody.innerHTML = ''; // Limpiar la tabla
 
-                        const nuevoEstado = {}; // Estado actual de pedidos
+        const nuevoEstado = {}; // Estado actual de pedidos
 
-                        pedidos.forEach(pedido => {
-                            // Crear fila para la tabla
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                <td>${pedido.id_pedido}</td>
-                <td>${pedido.fecha}</td>
+        pedidos.forEach(pedido => {
+            // Validar que el pedido tenga los datos necesarios
+            const idPedido = pedido.id_pedido || 'N/A';
+            const fecha = pedido.fecha || 'Fecha no disponible';
+            const cliente = pedido.cliente || 'Cliente desconocido';
+            const repartidor = pedido.repartidor || 'Buscando repartidor';
+            const productos = pedido.productos || 'Ninguno';
+            const estado = pedido.estado || 'Desconocido';
+            const total = pedido.total || '0.00';
+
+            // Crear fila para la tabla
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${idPedido}</td>
+                <td>${fecha}</td>
+               
+
                 <td>
-                    ${pedido.cliente}
-                    <button type="button" class="mdl-button mdl-button--colored mdl-button--primary" onclick="abrirModalDetallesCliente('${pedido.cliente}')">Ver más</button>
+                    ${pedido.cliente ? `${pedido.cliente}` : 'Cliente desconocido'}
+                    ${pedido.cliente ? `
+                    <a href="https://wa.me/${pedido.telefono_cliente.startsWith('+51') ? pedido.telefono_cliente : '+51' + pedido.telefono_cliente}?text=Usted%20tiene%20un%20pedido%20con%20los%20siguientes%20productos:%20${encodeURIComponent(productos)}.%20Me%20puede%20enviar%20su%20direccion%20para%20hacerle%20la%20entrega?" target="_blank" class="mdl-button mdl-button--colored" style="background-color: green; color: white;">
+                        <i class="zmdi zmdi-phone"></i> Contactar
+                    </a>` : ``}
                 </td>
-                <td>${pedido.repartidor ? pedido.repartidor : 'buscando repartidor'}</td>
-                <td class="productos" id="productos-${pedido.id_pedido}">${pedido.productos ? '' : 'Ninguno'}</td>
-                <td style="color: ${pedido.estado === 'aceptado' ? 'green' : 'red'}">${pedido.estado === 'cancelar' ? 'Cancelado' : pedido.estado}
+                
+                <td class="productos" id="productos-${idPedido}">${productos}</td>
+                <td style="color: ${pedido.estado === 'cancelar' ? 'red' : pedido.estado === 'pendiente' ? 'orange' : pedido.estado === 'aceptado' ? 'green' : 'black'}; font-weight: ${pedido.estado === 'pendiente' ? 'bold' : 'normal'}">${pedido.estado === 'cancelar' ? 'Cancelado' : pedido.estado}
                     <button type="button" class="mdl-button mdl-button--icon" onclick="abrirModalCambiarEstado(${pedido.id_pedido}, '${pedido.estado}')">
                         <i class="zmdi zmdi-edit"></i>
                     </button>
                 </td>
-                <td>S/ ${pedido.total}</td>
+                <td>S/ ${total}</td>
                 <td>
-                    <a href="mas_detalles_repartidor.php?id=${pedido.id_pedido}" class="mdl-button">Ver detalles</a>
+                    <a href="mas_detalles_repartidor.php?id=${idPedido}" class="mdl-button">Ver detalles</a>
                 </td>
             `;
-                            pedidosTableBody.appendChild(row);
+            pedidosTableBody.appendChild(row);
 
-                            // Actualizar productos si están disponibles
-                            if (pedido.productos) {
-                                actualizarProductos(pedido.productos, pedido.id_pedido);
-                            } else {
-                                socket.emit('getDetallesPedido', pedido.id_pedido);
-                            }
+            // Si productos están incompletos, solicita detalles al servidor
+            if (pedido.productos === null || pedido.productos === '') {
+                socket.emit('getDetallesPedido', idPedido);
+            }
 
-                            // Detectar cambios y nuevos pedidos para reproducir sonido
-                            if (
-                                !lastPedidosState[pedido.id_pedido] || // Si el pedido es nuevo
-                                lastPedidosState[pedido.id_pedido] !== pedido.estado // Si el estado cambia
-                            ) {
-                                if (isSoundEnabled) reproducirSonido();
-                            }
+            // Reproducir sonido si hay nuevos pedidos o cambios de estado
+            if (!lastPedidosState[idPedido] || lastPedidosState[idPedido] !== estado) {
+                if (isSoundEnabled) reproducirSonido();
+            }
 
-                            // Guardar el estado actual del pedido
-                            nuevoEstado[pedido.id_pedido] = pedido.estado;
-                       });
+            // Guardar el estado actual del pedido
+            nuevoEstado[idPedido] = estado;
+        });
 
-                        // Actualizar estado local y persistirlo en localStorage
-                        lastPedidosState = nuevoEstado;
-                        localStorage.setItem('lastPedidosState', JSON.stringify(nuevoEstado));
-                    });
+        // Actualizar estado local y persistirlo en localStorage
+        lastPedidosState = nuevoEstado;
+        localStorage.setItem('lastPedidosState', JSON.stringify(nuevoEstado));
+    });
 
-                    // Función para actualizar la celda con productos
-                    function actualizarProductos(productosStr, idPedido) {
-                        const productosCell = document.getElementById(`productos-${idPedido}`);
-                        productosCell.innerHTML = productosStr;
-                    }
+    // Evento para actualizar productos específicos
+    socket.on('detallesPedido', (detalles) => {
+        const { id_pedido, productos } = detalles;
+        actualizarProductos(productos, id_pedido);
+    });
 
-                    // Llamada inicial para obtener pedidos
-                    obtenerPedidosRepartidor();
-                </script>
+    // Función para actualizar la celda con productos
+    function actualizarProductos(productosStr, idPedido) {
+        const productosCell = document.getElementById(`productos-${idPedido}`);
+        if (productosCell) {
+            productosCell.innerHTML = productosStr || 'Ninguno';
+        }
+    }
+
+    // Función para reproducir sonido (alerta)
+    function reproducirSonido() {
+        const audio = new Audio('ruta/sonido/alerta.mp3'); // Ruta del sonido
+        audio.play();
+    }
+
+    // Llamada inicial para obtener pedidos
+    obtenerPedidosRepartidor();
+</script>
+
 
 
 
@@ -314,12 +339,13 @@ include "../admin/layout/parte1.php";
             <p style="text-align: center; background-color: #ffc107; padding: 10px; border-radius: 5px;">Estado actual: <b id="estado-actual"></b></p>
             <form id="frm-cambiar-estado">
                 <?php
-                $estados = ['pendiente', 'aceptado', 'preparacion', 'enviado', 'entregado', 'cancelar'];
+                $estados = ['tomado', 'notomado'];
                 echo '<select class="mdl-textfield__input" id="estado" name="estado" required>';
                 echo '<option value="">Seleccione un estado</option>';
                 foreach ($estados as $estado) {
                     $selected = $estado_actual === $estado ? 'selected' : '';
-                    echo "<option value=\"{$estado}\" $selected>{$estado}</option>";
+                    $label = $estado === 'notomado' ? 'No tomar' : 'Tomar';
+                    echo "<option value=\"{$estado}\" $selected>{$label}</option>";
                 }
                 echo '</select>';
                 ?>

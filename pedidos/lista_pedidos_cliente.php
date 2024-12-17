@@ -42,7 +42,7 @@ include "../admin/layout/parte1.php";
             <tr>
                 <th>N° Pedido</th>
                 <th>Fecha</th>
-                <th>Cliente</th>
+                <th>Restaurante</th>
                 <th>Repartidor</th>
                 <th>Productos</th>
                 <th>Estado</th>
@@ -163,14 +163,19 @@ include "../admin/layout/parte1.php";
                 <td>${pedido.id_pedido}</td>
                 <td>${pedido.fecha}</td>
                 <td>
-                    ${pedido.cliente}
-                    <button type="button" class="mdl-button mdl-button--colored mdl-button--primary" onclick="abrirModalDetallesCliente('${pedido.cliente}')">Ver más</button>
+                    ${pedido.restaurante}
+                    <button type="button" class="mdl-button mdl-button--colored mdl-button--primary" onclick="abrirModalDetallesRestaurante('${pedido.restaurante}')">Ver más</button>
                 </td>
                 <td>
-                    ${pedido.repartidor ? pedido.repartidor : 'buscando repartidor'}
+                    ${pedido.repartidor ? `${pedido.repartidor}` : 'Buscando repartidor...'}
+                    ${pedido.repartidor ? `
+                    <a href="https://wa.me/${pedido.telefono_repartidor}" target="_blank" class="mdl-button mdl-button--colored" style="background-color: green; color: white;">
+                        <i class="zmdi zmdi-phone"></i> Contactar
+                    </a>` : ``}
                 </td>
                 <td class="productos" id="productos-${pedido.id_pedido}">${pedido.productos ? '' : 'Ninguno'}</td>
-                <td style="color: ${pedido.estado === 'aceptado' ? 'green' : 'red'}">${pedido.estado === 'cancelar' ? 'Cancelado' : pedido.estado}
+                <td style="color: ${pedido.estado === 'cancelar' ? 'red' : pedido.estado === 'pendiente' ? 'orange' : pedido.estado === 'aceptado' ? 'green' : 'black'}; font-weight: ${pedido.estado === 'pendiente' ? 'bold' : 'normal'}">
+                    ${pedido.estado === 'cancelar' ? 'Cancelado' : pedido.estado === 'notomado' ? 'Buscando otro repartidor' : pedido.estado === 'tomado' ? 'El repartidor ha tomado tu orden' : pedido.estado}
                     <button type="button" class="mdl-button mdl-button--icon" onclick="abrirModalCambiarEstado(${pedido.id_pedido}, '${pedido.estado}')">
                         <i class="zmdi zmdi-edit"></i>
                     </button>
@@ -180,6 +185,7 @@ include "../admin/layout/parte1.php";
                     <a href="mas_detalles_cliente.php?id=${pedido.id_pedido}" class="mdl-button">Ver detalles</a>
                 </td>
             `;
+
                             pedidosTableBody.appendChild(row);
 
                             // Actualizar productos si están disponibles
@@ -218,9 +224,9 @@ include "../admin/layout/parte1.php";
 
 
 
-                <!-- Modal for client details -->
+                <!-- Modal for restaurant details -->
                 <style>
-                    #modal-detalles-cliente {
+                    #modal-detalles-restaurante {
                         position: fixed;
                         top: 50%;
                         left: 50%;
@@ -240,54 +246,60 @@ include "../admin/layout/parte1.php";
                         text-align: center;
                     }
 
-                    #cliente-detalles-content {
+                    #restaurante-detalles-content {
                         font-size: 1.2em;
                         text-align: justify;
                     }
                 </style>
 
-                <div id="modal-detalles-cliente" class="mdl-dialog" style="display: none;">
-                    <h4 class="mdl-dialog__title">Detalles del Cliente</h4>
+                <div id="modal-detalles-restaurante" class="mdl-dialog" style="display: none;">
+                    <h4 class="mdl-dialog__title" id="restaurante-nombre">Detalles del Restaurante</h4>
                     <div class="mdl-dialog__content">
-                        <p id="cliente-detalles-content">Cargando detalles...</p>
+                        <p id="restaurante-detalles-content">Cargando detalles...</p>
                     </div>
                     <div class="mdl-dialog__actions">
-                        <button type="button" class="mdl-button close" onclick="cerrarModalDetallesCliente()">Cerrar</button>
+                        <button type="button" class="mdl-button close" onclick="cerrarModalDetallesRestaurante()">Cerrar</button>
                     </div>
                 </div>
 
                 <script>
-                    function abrirModalDetallesCliente(nombreCliente) {
-                        const modal = document.getElementById('modal-detalles-cliente');
-                        const content = document.getElementById('cliente-detalles-content');
-                        fetch(`detalles_cliente.php?nombre=${encodeURIComponent(nombreCliente)}`)
+                    function abrirModalDetallesRestaurante(nombreRestaurante) {
+                        const modal = document.getElementById('modal-detalles-restaurante');
+                        const content = document.getElementById('restaurante-detalles-content');
+                        const title = document.getElementById('restaurante-nombre');
+                        title.textContent = `Detalles del Restaurante: ${nombreRestaurante}`;
+                        fetch(`detalles_restaurante.php?nombre=${encodeURIComponent(nombreRestaurante)}`)
                             .then(response => {
                                 if (response.ok) {
                                     return response.json();
                                 } else {
-                                    throw new Error('Error al obtener detalles del cliente');
+                                    throw new Error('Error al obtener detalles del restaurante');
                                 }
                             })
                             .then(detalles => {
                                 const {
-                                    nombre_cliente,
+                                    nombre,
                                     direccion,
-                                    telefono,
-                                    puntos_fidelidad
+                                    horario,
+                                    contacto,
+                                    imagen_logo,
+                                    horarios_flexibles
                                 } = detalles;
                                 content.innerHTML = `
-                <h4>${nombre_cliente}</h4>
+                <h4>${nombre}</h4>
                 <p>Dirección: ${direccion}</p>
-                <p>Teléfono: ${telefono}</p>
-                <p>Puntos de fidelidad: ${puntos_fidelidad}</p>
+                <p>Horario: ${horario}</p>
+                <p>Contacto: <i class="zmdi zmdi-whatsapp"></i> ${contacto}</p>
+                <p>Horarios flexibles: ${horarios_flexibles ? 'S' : 'N'}</p>
+                <img src="${imagen_logo}" style="width: 100%">
             `;
                             })
-                            .catch(error => console.error('Error al obtener detalles del cliente:', error));
+                            .catch(error => console.error('Error al obtener detalles del restaurante:', error));
                         modal.style.display = 'block';
                     }
 
-                    function cerrarModalDetallesCliente() {
-                        const modal = document.getElementById('modal-detalles-cliente');
+                    function cerrarModalDetallesRestaurante() {
+                        const modal = document.getElementById('modal-detalles-restaurante');
                         modal.style.display = 'none';
                     }
                 </script>
@@ -315,86 +327,100 @@ include "../admin/layout/parte1.php";
         }
     </style>
 
-    <div id="modal-cambiar-estado" class="mdl-dialog">
-        <div class="mdl-dialog__content">
-            <h4>Cambiar estado del pedido</h4>
+<div id="modal-cambiar-estado" class="mdl-dialog">
+    <div class="mdl-dialog__content">
+        <h4>Cambiar estado del pedido</h4>
 
-            <p style="text-align: center; background-color: #ffc107; padding: 10px; border-radius: 5px;">Estado actual: <b id="estado-actual"></b></p>
-            <form id="frm-cambiar-estado">
-                <?php
-                $estados = ['pendiente', 'aceptado', 'preparacion', 'enviado', 'entregado', 'cancelar'];
-                echo '<select class="mdl-textfield__input" id="estado" name="estado" required>';
-                echo '<option value="">Seleccione un estado</option>';
-                foreach ($estados as $estado) {
-                    $selected = $estado_actual === $estado ? 'selected' : '';
-                    echo "<option value=\"{$estado}\" $selected>{$estado}</option>";
-                }
-                echo '</select>';
-                ?>
-                <br>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input type="hidden" id="id_pedido" name="id_pedido" value="">
-                    <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="cambiarEstadoPedido()">
-                        Cambiar
-                    </button>
-                </div>
-            </form>
-        </div>
-        <div class="mdl-dialog__actions">
-            <button type="button" class="mdl-button close" onclick="cerrarModalCambiarEstado()">Cerrar</button>
-        </div>
-    </div>
+        <!-- Mensaje dinámico -->
+        <p id="mensaje-estado" style="text-align: center; background-color: #ffc107; padding: 10px; border-radius: 5px; display: none;"></p>
 
-    <script>
-        function abrirModalCambiarEstado(id_pedido, estado_actual) {
-            const modal = document.getElementById('modal-cambiar-estado');
-            const select = document.getElementById('estado');
-            const id_pedido_input = document.getElementById('id_pedido');
-            const estado_actual_span = document.getElementById('estado-actual');
-            id_pedido_input.value = id_pedido;
-            select.value = estado_actual;
-            estado_actual_span.textContent = estado_actual;
-            modal.style.display = 'block';
-        }
-
-        function cerrarModalCambiarEstado() {
-            const modal = document.getElementById('modal-cambiar-estado');
-            modal.style.display = 'none';
-        }
-
-        document.getElementById('frm-cambiar-estado').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const id_pedido = document.getElementById('id_pedido').value;
-            const estado = document.getElementById('estado').value;
-            if (estado) {
-                fetch(`cambiar_estado_pedido_restaurante.php?id_pedido=${id_pedido}&estado=${encodeURIComponent(estado)}`)
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        } else {
-                            throw new Error('Error al cambiar el estado del pedido');
-                        }
-                    })
-                    .then(response => {
-                        if (response.estado === 'success') {
-                            cerrarModalCambiarEstado();
-                            obtenerPedidosCliente();
-
-
-                        } else {
-                            alert(response.mensaje);
-                        }
-                    })
-                    .catch(error => console.error('Error al cambiar el estado del pedido:', error));
-            } else {
-                alert('Seleccione un estado');
+        <!-- Formulario para cambiar estado -->
+        <form id="frm-cambiar-estado">
+            <?php
+            $estados = ['pendiente', 'cancelar'];
+            echo '<select class="mdl-textfield__input" id="estado" name="estado" required>';
+            echo '<option value="" disabled selected>Seleccione un estado</option>';
+            foreach ($estados as $estado) {
+                echo "<option value=\"{$estado}\">{$estado}</option>";
             }
-        });
+            echo '</select>';
+            ?>
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input type="hidden" id="id_pedido" name="id_pedido" value="">
+                <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="btn-cambiar-estado" onclick="cambiarEstadoPedido()">
+                    Cambiar
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button close" onclick="cerrarModalCambiarEstado()">Cerrar</button>
+    </div>
+</div>
 
-        function cambiarEstadoPedido() {
-            document.getElementById('frm-cambiar-estado').dispatchEvent(new Event('submit'));
+<script>
+    function abrirModalCambiarEstado(id_pedido, estado_actual) {
+        const modal = document.getElementById('modal-cambiar-estado');
+        const select = document.getElementById('estado');
+        const id_pedido_input = document.getElementById('id_pedido');
+        const mensaje_estado = document.getElementById('mensaje-estado');
+
+        // Configurar valores dinámicos
+        id_pedido_input.value = id_pedido;
+        select.value = ''; // Resetear select
+        mensaje_estado.style.display = 'none'; // Ocultar mensaje
+
+        if (estado_actual !== 'pendiente') {
+            // Mostrar mensaje y deshabilitar opciones del formulario
+            mensaje_estado.textContent = 'Solo puedes cancelar tu pedido cuando est  en estado pendiente.';
+            mensaje_estado.style.display = 'block';
+            select.disabled = true;
+            document.getElementById('btn-cambiar-estado').disabled = true;
+        } else {
+            // Habilitar el formulario
+            select.disabled = false;
+            document.getElementById('btn-cambiar-estado').disabled = false;
         }
-    </script>
+
+        modal.style.display = 'block';
+    }
+
+    function cerrarModalCambiarEstado() {
+        const modal = document.getElementById('modal-cambiar-estado');
+        modal.style.display = 'none';
+    }
+
+    document.getElementById('frm-cambiar-estado').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const id_pedido = document.getElementById('id_pedido').value;
+        const estado = document.getElementById('estado').value;
+
+        if (estado) {
+            fetch(`cambiar_estado_pedido_restaurante.php?id_pedido=${id_pedido}&estado=${encodeURIComponent(estado)}`)
+                .then(response => {
+                    if (response.ok) return response.json();
+                    else throw new Error('Error al cambiar el estado del pedido');
+                })
+                .then(response => {
+                    if (response.estado === 'success') {
+                        cerrarModalCambiarEstado();
+                        obtenerPedidosCliente(); // Recargar pedidos
+                    } else {
+                        alert(response.mensaje);
+                    }
+                })
+                .catch(error => console.error('Error al cambiar el estado del pedido:', error));
+        } else {
+            alert('Seleccione un estado');
+        }
+    });
+
+    function cambiarEstadoPedido() {
+        document.getElementById('frm-cambiar-estado').dispatchEvent(new Event('submit'));
+    }
+</script>
+
 
 
 </body>

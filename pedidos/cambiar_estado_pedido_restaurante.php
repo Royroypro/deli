@@ -5,7 +5,7 @@ $id_pedido = $_GET['id_pedido'] ?? null;
 $estado = $_GET['estado'] ?? null;
 
 if ($id_pedido && $estado) {
-    if (!in_array($estado, ['pendiente', 'aceptado', 'preparacion', 'enviado', 'entregado', 'cancelar'])) {
+    if (!in_array($estado, ['pendiente', 'aceptado', 'preparacion', 'enviado', 'entregado', 'cancelar', 'tomado', 'notomado'])) {
         echo json_encode(['estado' => 'error', 'mensaje' => 'El estado no es v lido']);
 
         exit;
@@ -18,13 +18,17 @@ if ($id_pedido && $estado) {
             'id_pedido' => $id_pedido
         ]);
 
-        if ($consulta->rowCount()) {
+        if ($consulta->rowCount() > 0) {
             echo json_encode(['estado' => 'success']);
         } else {
             echo json_encode(['estado' => 'error', 'mensaje' => 'No se encontr  el pedido con ese id']);
         }
     } catch (PDOException $e) {
-        echo json_encode(['estado' => 'error', 'mensaje' => 'Error al cambiar el estado del pedido: ' . strip_tags($e->getMessage())]);
+        if (stripos($e->getMessage(), 'Data truncated for column')) {
+            echo json_encode(['estado' => 'error', 'mensaje' => 'El estado debe ser una palabra de 50 caracteres como m ximo']);
+        } else {
+            echo json_encode(['estado' => 'error', 'mensaje' => 'Error al cambiar el estado del pedido: ' . strip_tags($e->getMessage())]);
+        }
     }
 } else {
     echo json_encode(['estado' => 'error', 'mensaje' => 'No se encontraron los par metros id_pedido y estado']);
