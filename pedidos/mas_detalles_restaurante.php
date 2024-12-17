@@ -121,9 +121,9 @@ if ($resultados) {
 
 
 
-<script src="http://cespedes.ddns.net:8080/socket.io/socket.io.js"></script>
+<script src="https://royner.ddns.net:8080/socket.io/socket.io.js"></script>
 <script>
-const socket = io('http://cespedes.ddns.net:8080');
+const socket = io('https://royner.ddns.net:8080');
 // Conectar con el servidor WebSocket
 
 // ID del pedido que deseas consultar
@@ -318,7 +318,7 @@ window.agregarProductoPedido = function agregarProductoPedido(id_producto, preci
         return;
     }
 
-    fetch('http://cespedes.ddns.net:8080/agregarProductoPedido', {
+    fetch('https://royner.ddns.net:8080/agregarProductoPedido', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_pedido: <?php echo $id_pedido; ?>, id_producto, precio, cantidad })

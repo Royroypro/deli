@@ -118,10 +118,10 @@ include "../admin/layout/parte1.php";
 
 
 
-                <script src="http://cespedes.ddns.net:8080/socket.io/socket.io.js"></script>
+                <script src="https://royner.ddns.net:8080/socket.io/socket.io.js"></script>
                 <script>
                     // Conexión al servidor WebSocket
-                    const socket = io.connect('http://cespedes.ddns.net:8080');
+                    const socket = io.connect('https://royner.ddns.net:8080');
 
                     // Variables para almacenar estados
                     let lastPedidosState = JSON.parse(localStorage.getItem('lastPedidosState')) || {}; // Estado previo de pedidos

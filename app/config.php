@@ -19,7 +19,7 @@ try{
 }
 
 //Definir la variable $URL con la ruta del sistema
-$URL = "http://cespedes.ddns.net:8443/deli/";
+$URL = "https://royner.ddns.net/deli/";
 
 //Definir la zona horaria
 date_default_timezone_set("America/Lima");
